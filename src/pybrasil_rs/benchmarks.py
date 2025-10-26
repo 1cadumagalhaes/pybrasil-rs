@@ -46,7 +46,9 @@ class BenchmarkResult:
         }
 
 
-def run_benchmarks(scenario: str = "all", engine: str = "all", run_label: str = "", runs: int = 1) -> None:
+def run_benchmarks(
+    scenario: str = "all", engine: str = "all", run_label: str = "", runs: int = 1
+) -> None:
     RESULTS_DIR.mkdir(exist_ok=True)
 
     scenarios = ["small", "medium", "large", "xlarge"]
@@ -98,9 +100,13 @@ def _run_single_benchmark(
         raise FileNotFoundError(f"Data files not found for scenario: {scenario}")
 
     if engine == "pandas":
-        return _benchmark_pandas(fact_file, dim_file, scenario, system_info, run_label, use_pyarrow=False)
+        return _benchmark_pandas(
+            fact_file, dim_file, scenario, system_info, run_label, use_pyarrow=False
+        )
     elif engine == "pandas-pyarrow":
-        return _benchmark_pandas(fact_file, dim_file, scenario, system_info, run_label, use_pyarrow=True)
+        return _benchmark_pandas(
+            fact_file, dim_file, scenario, system_info, run_label, use_pyarrow=True
+        )
     elif engine == "polars":
         return _benchmark_polars(fact_file, dim_file, scenario, system_info, run_label)
     else:
@@ -149,10 +155,12 @@ def _benchmark_pandas(
 
         result = (
             filtered.groupby("region_country")
-            .agg({
-                "views": "sum",
-                "engagement_score": "mean",
-            })
+            .agg(
+                {
+                    "views": "sum",
+                    "engagement_score": "mean",
+                }
+            )
             .reset_index()
             .sort_values("views", ascending=False)
         )
@@ -185,10 +193,12 @@ def _benchmark_polars(
             fact.join(dim, on="content_id", how="inner")
             .filter(pl.col("process_status") != "Failed")
             .group_by("region_country")
-            .agg([
-                pl.col("views").sum(),
-                pl.col("engagement_score").mean(),
-            ])
+            .agg(
+                [
+                    pl.col("views").sum(),
+                    pl.col("engagement_score").mean(),
+                ]
+            )
             .sort("views", descending=True)
             .collect()
         )
@@ -196,7 +206,9 @@ def _benchmark_polars(
         return result
 
     elapsed_time, peak_memory = _measure_execution(query)
-    return BenchmarkResult("polars", scenario, elapsed_time, peak_memory, system_info, run_label)
+    return BenchmarkResult(
+        "polars", scenario, elapsed_time, peak_memory, system_info, run_label
+    )
 
 
 def _save_results(results_by_engine: dict[str, list[BenchmarkResult]]) -> None:
