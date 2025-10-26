@@ -1,6 +1,9 @@
 from rich.console import Console
 from rich.logging import RichHandler
 import logging
+import psutil
+import platform
+from datetime import datetime
 
 console = Console()
 
@@ -44,3 +47,19 @@ def print_table(data: list[dict], title: str = "") -> None:
         table.add_row(*[str(row[col]) for col in columns])
 
     console.print(table)
+
+
+def get_system_info() -> dict:
+    """Collect comprehensive system information for benchmarking context."""
+    cpu_freq = psutil.cpu_freq()
+    memory = psutil.virtual_memory()
+
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "cpu_count": psutil.cpu_count(logical=False),
+        "cpu_count_logical": psutil.cpu_count(logical=True),
+        "cpu_name": platform.processor(),
+        "cpu_freq_mhz": round(cpu_freq.current) if cpu_freq else None,
+        "memory_total_gb": round(memory.total / (1024**3), 2),
+        "memory_available_gb": round(memory.available / (1024**3), 2),
+    }

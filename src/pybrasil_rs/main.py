@@ -49,6 +49,18 @@ def benchmark(
         "--engine",
         help="Engine to benchmark: pandas, pandas-pyarrow, polars, or all",
     ),
+    run_label: str = typer.Option(
+        "",
+        "--label",
+        "-l",
+        help="Optional label for this benchmark run to identify it in results",
+    ),
+    runs: int = typer.Option(
+        1,
+        "--runs",
+        "-r",
+        help="Number of times to run the benchmark suite",
+    ),
 ) -> None:
     """Run performance benchmarks comparing Pandas and Polars."""
     print_section("Performance Benchmarks")
@@ -74,6 +86,15 @@ def benchmark(
         )
         raise typer.Exit(1)
 
+    if runs < 1:
+        typer.echo(
+            typer.style(
+                "❌ Invalid runs: must be at least 1",
+                fg=typer.colors.RED,
+            )
+        )
+        raise typer.Exit(1)
+
     data_dir = Path("data")
     if not data_dir.exists():
         typer.echo(
@@ -85,7 +106,7 @@ def benchmark(
         raise typer.Exit(1)
 
     try:
-        run_benchmarks(scenario, engine)
+        run_benchmarks(scenario, engine, run_label, runs)
     except Exception as e:
         typer.echo(
             typer.style(f"❌ Error running benchmarks: {e}", fg=typer.colors.RED)
