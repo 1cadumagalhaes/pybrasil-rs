@@ -1,0 +1,5 @@
+scenario,time_seconds,memory_mb
+small,0.5059,61.41
+medium,1.4546,252.58
+large,10.6597,2091.2
+xlarge,195.2919,20316.71
